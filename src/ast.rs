@@ -16,6 +16,7 @@ impl Ast{
         let mut v: vec::Vec<string::String> = str.split(" ").map(|s| s.to_string()).collect();
         
         v.reverse();
+
         match v.pop() {
             None => return Err("Needs some tokens..."),
             Some(str) => match &str[..]{
@@ -24,6 +25,7 @@ impl Ast{
                     return Err("First token must be \"(\".")},
             },
         };
+        
         match Ast::from_string_vec(v){
             Ok((_, ast)) => Ok(ast),
             Err(e) => Err(e),
@@ -32,6 +34,7 @@ impl Ast{
 
     fn from_string_vec(mut v : vec::Vec<string::String>) -> result::Result<(vec::Vec<string::String>, Ast), &'static str> {
         let mut ast_vec = vec![];
+
         loop{
             match v.pop() {
                 None => break,
