@@ -1,0 +1,4 @@
+[package]
+name = "logic"
+version = "0.1.0"
+authors = ["Oliver Reardon-Smith <or1426@my.bristol.ac.uk>"]
