@@ -1,11 +1,18 @@
 extern crate linenoise;
-use std::string;
+
+mod lval;
 mod ast;
+mod env;
 
 fn main() {
+    let mut environment = env::Env::new();
+
+    environment.add_val("1".to_string(), lval::LVal::Bool(true));
+    environment.add_val("0".to_string(), lval::LVal::Bool(false));
+    
      loop {
          let val = linenoise::input(">>> ");
-        match val {
+         match val {
             None => { break }
             Some(input) => {
                 linenoise::history_add(&input[..]);
