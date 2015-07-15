@@ -36,7 +36,7 @@ impl Env{
         self.stack.pop()
     }
     
-    pub fn lookup(self, key: string::String) -> option::Option<lval::LVal>{
+    pub fn lookup(&self, key: string::String) -> option::Option<lval::LVal>{
         for map in self.stack.iter().rev() {
             match map.get(&key) {
                 Some(value) => return Some(value.clone()),

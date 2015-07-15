@@ -24,15 +24,15 @@ impl Clone for LVal{
 }
 
 impl LVal{
-    pub fn new(tree: ast::Ast, environment: env::Env) -> result::Result<LVal, string::String>{
+    pub fn new(tree: ast::Ast,  environment: &env::Env) -> result::Result<LVal, string::String>{
         match tree {
             ast::Ast::Token(token) => match environment.lookup(token.clone()) {
                 Some(value) => Ok(value),
-                None => Err(format!("Error: Failed to find token \"{}\"in environment", token))
+                None => Err(format!("Error: Failed to find token \"{}\" in environment", token))
             },
             ast::Ast::SubList(v) => {
                 let mut lval_vec : vec::Vec<LVal> = vec::Vec::new();
-                for element in v.into_iter().map(|a| LVal::new(a, environment.clone())){
+                for element in v.into_iter().map(|a| LVal::new(a, environment)){
                     match element {
                         Ok(value) => lval_vec.push(value.clone()),
                         Err(s) => return Err(s),
@@ -48,6 +48,33 @@ impl LVal{
             LVal::Bool(_) => ltype::LType::Bool,
             LVal::List(_) => ltype::LType::List,
             LVal::Type(_) => ltype::LType::Type,
+        }
+    }
+
+    pub fn to_string(self) -> string::String {
+        self.to_string_with_indent(0)
+    }
+    fn to_string_with_indent(self, indent: i32) -> string::String {
+        match self {
+            LVal::Bool(b) => match b {
+                true => "1".to_string(),
+                false => "0".to_string(),
+            },
+            LVal::List(v) => {
+                let mut s = "\n".to_string();
+                for _ in 0..indent {
+                    s.push_str(" ");
+                }
+                s.push_str("(");
+                for element in v.iter() {
+                    s.push_str(&element.clone().to_string_with_indent(indent+1)[..]);
+                    s.push_str(" ");
+                }
+                s.pop();
+                s.push_str(")");
+                s
+            },
+            LVal::Type(t) => format!("Type({})", t.to_string()),
         }
     }
 }

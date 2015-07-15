@@ -17,7 +17,11 @@ fn main() {
             Some(input) => {
                 linenoise::history_add(&input[..]);
                 match ast::Ast::from_string(input){
-                    Ok(a) => println!("<<< {}", a.to_string()),
+                    Ok(a) => match lval::LVal::new(a, &environment) {
+                        Ok(value) => println!("<<< {}", value.to_string()),
+                        Err(e) => println!("!!! {}", e),
+                            
+                    },
                     Err(e) => println!("!!! {}", e),
                 };
             }
