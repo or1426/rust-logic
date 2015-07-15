@@ -4,7 +4,6 @@ use std::vec;
 use std::result;
 use std::string;
 
-//use ltype;
 use ast;
 use env;
 
@@ -31,7 +30,16 @@ impl LVal{
                 Some(value) => Ok(value),
                 None => Err(format!("Error: Failed to find token \"{}\"in environment", token))
             },
-            ast::Ast::SubList(v) => Err("Not implemented yet!".to_string()),
+            ast::Ast::SubList(v) => {
+                let mut lval_vec : vec::Vec<LVal> = vec::Vec::new();
+                for element in v.into_iter().map(|a| LVal::new(a, environment.clone())){
+                    match element {
+                        Ok(value) => lval_vec.push(value.clone()),
+                        Err(s) => return Err(s),
+                    };
+                };
+                Ok(LVal::List(lval_vec))
+            },
         }
     }
 

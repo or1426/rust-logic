@@ -9,6 +9,14 @@ pub struct Env{
     stack :  vec::Vec<hash_map::HashMap<string::String, lval::LVal>>,
 }
 
+impl Clone for Env{
+    fn clone(&self) -> Env {
+        Env {
+            stack : self.stack.clone()
+        }
+    }
+}
+
 impl Env{
     pub fn new() -> Env{
         Env{
