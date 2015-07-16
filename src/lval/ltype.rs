@@ -17,11 +17,11 @@ impl Clone for LType{
 }
 
 impl LType{
-    pub fn to_string(self) -> string::String{
+    pub fn to_string(&self) -> string::String{
         match self {
-            LType::Bool => "bool".to_string(),
-            LType::List => "list".to_string(),
-            LType::Type => "type".to_string(),            
+            &LType::Bool => "bool".to_string(),
+            &LType::List => "list".to_string(),
+            &LType::Type => "type".to_string(),            
         }
     }
 }

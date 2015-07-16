@@ -43,38 +43,38 @@ impl LVal{
         }
     }
 
-    pub fn get_type(self) -> ltype::LType{
+    pub fn get_type(&self) -> ltype::LType{
         match(self){
-            LVal::Bool(_) => ltype::LType::Bool,
-            LVal::List(_) => ltype::LType::List,
-            LVal::Type(_) => ltype::LType::Type,
+            &LVal::Bool(_) => ltype::LType::Bool,
+            &LVal::List(_) => ltype::LType::List,
+            &LVal::Type(_) => ltype::LType::Type,
         }
     }
 
-    pub fn to_string(self) -> string::String {
+    pub fn to_string(&self) -> string::String {
         self.to_string_with_indent(0)
     }
-    fn to_string_with_indent(self, indent: i32) -> string::String {
+    fn to_string_with_indent(&self, indent: i32) -> string::String {
         match self {
-            LVal::Bool(b) => match b {
-                true => "1".to_string(),
-                false => "0".to_string(),
+            &LVal::Bool(ref b) => match b {
+                &true => "1".to_string(),
+                &false => "0".to_string(),
             },
-            LVal::List(v) => {
+            &LVal::List(ref v) => {
                 let mut s = "\n".to_string();
                 for _ in 0..indent {
                     s.push_str(" ");
                 }
                 s.push_str("(");
                 for element in v.iter() {
-                    s.push_str(&element.clone().to_string_with_indent(indent+1)[..]);
+                    s.push_str(&element.to_string_with_indent(indent+1)[..]);
                     s.push_str(" ");
                 }
                 s.pop();
                 s.push_str(")");
                 s
             },
-            LVal::Type(t) => format!("Type({})", t.to_string()),
+            &LVal::Type(ref t) => format!("Type({})", t.to_string()),
         }
     }
 }
