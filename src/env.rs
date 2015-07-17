@@ -36,15 +36,15 @@ impl Env{
         self.stack.pop()
     }
     
-    pub fn lookup(&self, key: string::String) -> option::Option<lval::LVal>{
+    pub fn lookup(&self, key: string::String) -> lval::LVal{
         for map in self.stack.iter().rev() {
             match map.get(&key) {
-                Some(value) => return Some(value.clone()),
+                Some(value) => return value.clone(),
                 None => (),
             };
         }
 
-        return None;
+        return lval::LVal::Error(format!("Key \"{}\" not found in environment\n", key));
     }
 
     pub fn add_val(&mut self, key: string::String, value: lval::LVal){

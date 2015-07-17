@@ -10,6 +10,7 @@ use env;
 pub enum LVal{
     Bool(bool),
     List(vec::Vec<LVal>),
+    Error(string::String),
     Type(ltype::LType),
 }
 
@@ -18,35 +19,38 @@ impl Clone for LVal{
         match self {
             &LVal::Bool(b) => LVal::Bool(b),
             &LVal::List(ref v) => LVal::List(v.clone()),
+            &LVal::Error(ref s) => LVal::Error(s.clone()),
             &LVal::Type(ref t) => LVal::Type(t.clone()),
         }
     }
 }
 
 impl LVal{
-    pub fn new(tree: ast::Ast,  environment: &env::Env) -> result::Result<LVal, string::String>{
+    pub fn new(tree: ast::Ast,  environment: &env::Env) -> LVal {
         match tree {
             ast::Ast::Token(token) => match environment.lookup(token.clone()) {
-                Some(value) => Ok(value),
-                None => Err(format!("Error: Failed to find token \"{}\" in environment", token))
+                LVal::Error(s) => return LVal::Error(format!("{}Environment lookup failed wnen attempting to pars\n", s)),
+                x => return x,
             },
             ast::Ast::SubList(v) => {
                 let mut lval_vec : vec::Vec<LVal> = vec::Vec::new();
                 for element in v.into_iter().map(|a| LVal::new(a, environment)){
                     match element {
-                        Ok(value) => lval_vec.push(value.clone()),
-                        Err(s) => return Err(s),
+                        LVal::Error(s) => return LVal::Error(s),
+                        value => lval_vec.push(value.clone()),
                     };
                 };
-                Ok(LVal::List(lval_vec))
+                LVal::List(lval_vec)
             },
         }
     }
+
 
     pub fn get_type(&self) -> ltype::LType{
         match(self){
             &LVal::Bool(_) => ltype::LType::Bool,
             &LVal::List(_) => ltype::LType::List,
+            &LVal::Error(_) => ltype::LType::Error,
             &LVal::Type(_) => ltype::LType::Type,
         }
     }
@@ -74,7 +78,13 @@ impl LVal{
                 s.push_str(")");
                 s
             },
+            &LVal::Error(ref e) => format!("Error({})", e.to_string()),
             &LVal::Type(ref t) => format!("Type({})", t.to_string()),
         }
     }
+    /*
+    pub fn eval(&self) -> LVal{
+
+}
+     */
 }

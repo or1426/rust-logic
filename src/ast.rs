@@ -8,7 +8,7 @@ pub enum Ast{
 }
 
 impl Ast{
-    pub fn from_string(s: string::String) -> result::Result<Ast, &'static str> {
+    pub fn new(s: string::String) -> result::Result<Ast, &'static str> {
         //First add spaces to ensure brackets end up as tokens by themselves
         let mut s = s.replace("(", " ( ");
         s = s.replace(")", " ) ");
@@ -21,8 +21,7 @@ impl Ast{
             None => return Err("Needs some tokens..."),
             Some(str) => match &str[..]{
                 "(" => (),
-                _ => {
-                    return Err("First token must be \"(\".")},
+                _ => return Ok(Ast::Token(str)),
             },
         };
         
