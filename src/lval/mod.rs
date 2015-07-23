@@ -1,4 +1,5 @@
 mod ltype;
+mod larray;
 
 use std::vec;
 use std::result;
@@ -8,32 +9,12 @@ use std::boxed;
 use ast;
 use env;
 
-pub struct LArray{
-    v: vec::Vec<LVal>,
-    t: ltype::LType,
-}
-
 pub enum LVal{
     Bool(bool),
     List(vec::Vec<LVal>),
-    Array(LArray),
+    Array(larray::LArray),
     Error(string::String),
     Type(ltype::LType),
-}
-
-impl LArray{
-    pub fn new(v: vec::Vec<LVal>, t: ltype::LType) -> LArray {
-        LArray{
-            v:v,
-            t:t,
-        }
-    }
-
-}
-impl Clone for LArray{
-    fn clone(&self) -> LArray {
-        LArray::new(self.v.clone(), self.t.clone())
-    }
 }
 
 impl Clone for LVal{
@@ -88,7 +69,7 @@ impl LVal{
                     }
                 }
                 
-                LVal::Array(LArray::new(lval_vec, t))
+                LVal::Array(larray::LArray::new(lval_vec, t))
             },
 
         }
