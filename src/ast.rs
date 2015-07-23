@@ -5,6 +5,7 @@ use std::result;
 pub enum Ast{
     Token(string::String),
     SubList(vec::Vec<Ast>),
+    SubArray(vec::Vec<Ast>),
 }
 
 impl Ast{
@@ -12,20 +13,23 @@ impl Ast{
         //First add spaces to ensure brackets end up as tokens by themselves
         let mut s = s.replace("(", " ( ");
         s = s.replace(")", " ) ");
+        s = s.replace("[", " [ ");
+        s = s.replace("]", " ] ");
         let str = s.trim();
         let mut v: vec::Vec<string::String> = str.split(" ").map(|s| s.to_string()).collect();
-        
+
         v.reverse();
 
         match v.pop() {
-            None => return Err("Needs some tokens..."),
-            Some(str) => match &str[..]{
-                "(" => (),
-                _ => return Ok(Ast::Token(str)),
-            },
+            None => {return Err("I need some tokens blad")},
+            Some(token) => match &token[..] {
+                "["|"(" => (),
+                _ => {return Ok(Ast::Token(token));},
+            }
+            
         };
         
-        match Ast::from_string_vec(v){
+        match Ast::from_string_vec(v) {
             Ok((_, ast)) => Ok(ast),
             Err(e) => Err(e),
         }
@@ -39,7 +43,8 @@ impl Ast{
                 None => break,
                 Some(str) => match &str[..] {
                     ")" => return Ok((v, Ast::SubList(ast_vec))),
-                    "(" => {
+                    "]" => return Ok((v, Ast::SubArray(ast_vec))),
+                    "(" | "[" => {
                         match Ast::from_string_vec(v.clone()) {
                             Ok((v_ret, ast)) => {
                                 ast_vec.push(ast);
@@ -81,6 +86,18 @@ impl Ast{
                 }
                 output.pop(); //don't want the ugly extra whitespace
                 output.push_str(")");
+            },
+            Ast::SubArray(v) => {
+                output.push_str("\n");
+                for _ in 0..indent{
+                    output.push_str(" ");
+                }
+                output.push_str("[");
+                for element in v {
+                    output.push_str(&element.to_string_with_indent(indent+1)[..]);
+                }
+                output.pop(); //don't want the ugly extra whitespace
+                output.push_str("]");
             },
         };
 
