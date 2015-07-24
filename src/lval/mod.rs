@@ -1,7 +1,7 @@
 mod ltype;
 mod larray;
 mod lfunc;
-mod specialform;
+pub mod specialform;
 
 use std::vec;
 use std::result;
@@ -34,19 +34,20 @@ impl Clone for LVal{
 }
 
 impl LVal{
-    pub fn new(tree: ast::Ast,   environment: &env::Env) -> LVal {
+    pub fn new(tree: ast::Ast, environment: &mut env::Env) -> LVal {
         match tree.clone() {
             ast::Ast::Token(token) => match environment.lookup(token.clone()) {
                 LVal::Error(s) => return LVal::Error(format!("{}Environment lookup failed wnen attempting to pars\n", s)),
                 x => return x,
             },
             ast::Ast::SubList(v) => {
-                let mut lval_vec : vec::Vec<LVal> = vec::Vec::new();
-                for element in v.into_iter().map(|a| LVal::new(a, environment)){
-                    match element {
+                let lval_vec : vec::Vec<LVal> = v.into_iter().map(|a| LVal::new(a, environment)).collect();
+                
+                for element in lval_vec.iter(){
+                    match element.clone() {
                         LVal::Error(s) => return LVal::Error(s),
                         LVal::SpecialForm(form) => return form.apply(tree, environment),
-                        value => lval_vec.push(value.clone()),
+                        _ => (),
                     };
                 };
                 LVal::List(lval_vec)
