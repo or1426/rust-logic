@@ -34,7 +34,7 @@ impl Clone for LVal{
 }
 
 impl LVal{
-    pub fn new(tree: ast::Ast, environment: &mut env::Env) -> LVal {
+    pub fn new(tree: ast::Ast, environment: &env::Env) -> LVal {
         match tree.clone() {
             ast::Ast::Token(token) => match environment.lookup(token.clone()) {
                 LVal::Error(s) => return LVal::Error(format!("{}Environment lookup failed wnen attempting to pars\n", s)),
@@ -43,10 +43,9 @@ impl LVal{
             ast::Ast::SubList(v) => {
                 let lval_vec : vec::Vec<LVal> = v.into_iter().map(|a| LVal::new(a, environment)).collect();
                 
-                for element in lval_vec.iter(){
+                for element in lval_vec.iter() {
                     match element.clone() {
-                        LVal::Error(s) => return LVal::Error(s),
-                        LVal::SpecialForm(form) => return form.apply(tree, environment),
+                        LVal::Error(s) => return LVal::Error(s),                        
                         _ => (),
                     };
                 };

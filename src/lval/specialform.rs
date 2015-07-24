@@ -4,7 +4,7 @@ use env;
 use std::string;
 
 pub struct SpecialForm{
-    f: fn(ast::Ast, &mut env::Env)->lval::LVal,
+    f: fn(ast::Ast, &env::Env)->lval::LVal,
     repr: string::String,
 }
 
@@ -19,13 +19,13 @@ impl Clone for SpecialForm{
 }
 
 impl SpecialForm{
-    pub fn new(f:fn(ast::Ast, &mut env::Env)->lval::LVal, repr:string::String)->SpecialForm{
+    pub fn new(f:fn(ast::Ast, &env::Env)->lval::LVal, repr:string::String)->SpecialForm{
         SpecialForm{
             f:f,
             repr:repr.clone(),
         }
     }
-    pub fn apply(self, tree: ast::Ast, environment: &mut env::Env) -> lval::LVal {
+    pub fn apply(self, tree: ast::Ast, environment: &env::Env) -> lval::LVal {
         (self.f)(tree, environment)
     }
     pub fn to_string(&self)->string::String{
@@ -33,6 +33,7 @@ impl SpecialForm{
     }
 }
 
+/*
 pub fn def_func(tree: ast::Ast, environment: &mut env::Env) -> lval::LVal {
     match tree {
         ast::Ast::SubList(v) => if v.len() == 3 {
@@ -50,4 +51,4 @@ pub fn def_func(tree: ast::Ast, environment: &mut env::Env) -> lval::LVal {
         _ => lval::LVal::Error("def must be called in a list".to_string()),
     }
 }
-
+*/
