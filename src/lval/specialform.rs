@@ -33,6 +33,21 @@ impl SpecialForm{
     }
 }
 
+pub fn placeholder_fn(tree: ast::Ast, environment: &env::Env) -> lval::LVal {
+    match tree {
+        ast::Ast::SubList(v) => if v.len() == 2 {
+            match v[1].clone() {
+                ast::Ast::Token(token) => lval::LVal::PlaceHolder(token),
+                _ => lval::LVal::Error("placeholders first parameter must be a simple token".to_string()),
+            }
+        }else{
+            lval::LVal::Error("placeholder must be part of a list with three elements".to_string())
+        },
+        _ => lval::LVal::Error("placeholder must be called in a list".to_string()),
+    }
+}
+
+
 /*
 pub fn def_func(tree: ast::Ast, environment: &mut env::Env) -> lval::LVal {
     match tree {
