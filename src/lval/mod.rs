@@ -1,5 +1,7 @@
 mod ltype;
 mod larray;
+mod lfunc;
+mod specialform;
 
 use std::vec;
 use std::result;
@@ -15,6 +17,7 @@ pub enum LVal{
     Array(larray::LArray),
     Error(string::String),
     Type(ltype::LType),
+    SpecialForm(specialform::SpecialForm),
 }
 
 impl Clone for LVal{
@@ -25,13 +28,14 @@ impl Clone for LVal{
             &LVal::Array(ref a) => LVal::Array(a.clone()),
             &LVal::Error(ref s) => LVal::Error(s.clone()),
             &LVal::Type(ref t) => LVal::Type(t.clone()),
+            &LVal::SpecialForm(ref f) => LVal::SpecialForm(f.clone()),
         }
     }
 }
 
 impl LVal{
-    pub fn new(tree: ast::Ast,  environment: &env::Env) -> LVal {
-        match tree {
+    pub fn new(tree: ast::Ast,   environment: &env::Env) -> LVal {
+        match tree.clone() {
             ast::Ast::Token(token) => match environment.lookup(token.clone()) {
                 LVal::Error(s) => return LVal::Error(format!("{}Environment lookup failed wnen attempting to pars\n", s)),
                 x => return x,
@@ -41,6 +45,7 @@ impl LVal{
                 for element in v.into_iter().map(|a| LVal::new(a, environment)){
                     match element {
                         LVal::Error(s) => return LVal::Error(s),
+                        LVal::SpecialForm(form) => return form.apply(tree, environment),
                         value => lval_vec.push(value.clone()),
                     };
                 };
@@ -75,6 +80,16 @@ impl LVal{
         }
     }
 
+    pub fn eval(&self,environment: &mut env::Env) -> LVal{
+        match self {
+            &LVal::List(ref v) => if v.len() == 0 {
+                self.clone()
+            }else{
+                LVal::List(v.iter().map(|value: &LVal| value.eval(environment)).collect())
+            },
+            _ => self.clone(),
+        }
+    }
 
     pub fn get_type(&self) -> ltype::LType{
         match(self){
@@ -83,6 +98,8 @@ impl LVal{
             &LVal::Array(ref a) => ltype::LType::Array(boxed::Box::new(a.t.clone())),
             &LVal::Error(_) => ltype::LType::Error,
             &LVal::Type(_) => ltype::LType::Type,
+            &LVal::SpecialForm(_) => ltype::LType::SpecialForm,
+            
         }
     }
 
@@ -125,9 +142,9 @@ impl LVal{
                 s.push_str("]");
                 s
             },
-
             &LVal::Error(ref e) => format!("Error({})", e.to_string()),
             &LVal::Type(ref t) => format!("Type({})", t.to_string()),
+            &LVal::SpecialForm(ref f) => f.to_string(),
         }
     }
 }

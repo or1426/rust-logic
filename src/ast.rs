@@ -8,6 +8,16 @@ pub enum Ast{
     SubArray(vec::Vec<Ast>),
 }
 
+impl Clone for Ast{
+    fn clone(&self)->Ast{
+        match self {
+            &Ast::Token(ref s) => Ast::Token(s.clone()),
+            &Ast::SubList(ref v) => Ast::SubList(v.clone()),
+            &Ast::SubArray(ref v) => Ast::SubList(v.clone()),
+        }
+    }
+}
+
 impl Ast{
     pub fn new(s: string::String) -> result::Result<Ast, &'static str> {
         //First add spaces to ensure brackets end up as tokens by themselves
