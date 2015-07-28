@@ -34,44 +34,39 @@ impl BuiltinFn{
             applied_args:vec::Vec::new(),
         }
     }
-    pub fn get_sig(&self)->vec::Vec<ltype::LType>{
+    fn get_sig(&self)->vec::Vec<ltype::LType>{
         self.sig.clone()
     }
-    pub fn get_ret_type(&self)->ltype::LType{
+    fn get_ret_type(&self)->ltype::LType{
         self.ret_type.clone()
     }
 
-    pub fn eval(&self, args: &lval::LVal, environment: &mut env::Env) -> lval::LVal {
-        match args.clone() {
-            lval::LVal::List(v) => {
-                for (sig_element_type, arg) in self.get_sig().iter().zip(v.iter()){
-                    if sig_element_type.clone() != arg.get_type(){
-                        return lval::LVal::Error(format!("Argument {} is not of type {}!",arg.to_string(), sig_element_type.to_string()));
-                    }
-                }
-                (self.f)(args, environment)
-            },
-            _ => lval::LVal::Error("eval arg must be list".to_string()),
+    fn eval(&self, environment: &mut env::Env) -> lval::LVal {
+        if self.sig.len() == 0 {
+            let mut tmp_args = self.applied_args.clone();            
+            (self.f)(&lval::LVal::List(tmp_args), environment)
+        }else{
+            lval::LVal::Func(LFunc::Builtin(self.clone()))
         }
     }
 
     fn get_top_arg_type(&self) -> option::Option<ltype::LType> {
-        match self.sig.last() {
+        match self.sig.first() {
             None => None,
             Some(t) => Some((*t).clone()),
         }
     }
 
-    pub fn apply_arg(&self, arg: lval::LVal) -> lval::LVal {
+    fn apply_arg(&self, arg: lval::LVal) -> lval::LVal {
         match self.get_top_arg_type(){
             Some(required_type) =>
                 if required_type == arg.get_type(){
                     let mut new_func = self.clone();
-                    new_func.sig.pop();
+                    new_func.sig.remove(0);
                     new_func.applied_args.push(arg);
                     lval::LVal::Func(LFunc::Builtin(new_func))
                 }else{
-                    lval::LVal::Error(format!("TypeError! Expected {} found {} in applied arg", required_type.to_string(), arg.get_type().to_string()))
+                    lval::LVal::Error(format!("TypeError: Expected {} found {} in applied arg", required_type.to_string(), arg.get_type().to_string()))
                 },
             None => lval::LVal::Error("Tried to apply arg to fuction with no required args".to_string()),
         }
@@ -91,9 +86,9 @@ impl Clone for LFunc{
 }
 
 impl LFunc{
-    pub fn eval(&self, args: &lval::LVal, environment: &mut env::Env) -> lval::LVal{
+    pub fn eval(&self, environment: &mut env::Env) -> lval::LVal{
         match self {
-            &LFunc::Builtin(ref b) => b.eval(args, environment),
+            &LFunc::Builtin(ref b) => b.eval(environment),
         }
     }
 
@@ -107,6 +102,13 @@ impl LFunc{
             &LFunc::Builtin(ref b) => b.get_ret_type(),
         }
     }
+
+    pub fn get_top_arg_type(&self) -> option::Option<ltype::LType> {
+        match self {
+            &LFunc::Builtin(ref b) => b.get_top_arg_type(),
+        }
+    }
+    
     pub fn apply_arg(&self, arg: lval::LVal) -> lval::LVal{
         match self {
             &LFunc::Builtin(ref b) => b.apply_arg(arg),

@@ -90,14 +90,33 @@ impl LVal{
             &LVal::List(ref v) => if v.len() == 0 {
                 self.clone()
             }else{
+                //TODO: This is fucking disgusting
                 environment.push_empty_frame();
                 let mut evaled_vec: vec::Vec<LVal> = v.iter().map(|value: &LVal| value.eval(environment)).collect();
-                let ret_value = match evaled_vec.remove(0) {
-                    LVal::Func(f) =>  f.eval(&LVal::List(evaled_vec),environment),
-                    x => {
-                        evaled_vec.insert(0,x);
-                        LVal::List(evaled_vec)
-                    },
+                evaled_vec.reverse();
+                let ret_value = loop {
+                    match evaled_vec.pop() {
+                        Some(LVal::Func(f)) => {
+                            match f.get_top_arg_type() {
+                                Some(t) => {
+                                    match evaled_vec.pop() {
+                                        None => return LVal::Func(f),
+                                        Some(value) => {
+                                            let r = f.apply_arg(value);
+                                            evaled_vec.push(r)
+                                        },                                            
+                                    }
+                                }
+                                None => return f.eval(environment),
+                            }
+                        },
+                        Some(x) => {
+                            evaled_vec.push(x);
+                            evaled_vec.reverse();
+                            return LVal::List(evaled_vec)
+                        },
+                        None => return LVal::List(evaled_vec)
+                    }
                 };
                 environment.pop_frame();
                 ret_value
