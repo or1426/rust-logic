@@ -32,13 +32,13 @@ impl Clone for LFn{
 }
 
 impl LFn{
-    pub fn new(tree: ast::Ast, environment: env::Env, sig: vec::Vec<ltype::LType>, ret_type: ltype::LType, applied_args: vec::Vec<lval::LVal>, formals: vec::Vec<string::String>) -> LFn{
+    pub fn new(tree: ast::Ast, environment: env::Env, sig: vec::Vec<ltype::LType>, ret_type: ltype::LType, formals: vec::Vec<string::String>) -> LFn{
         LFn{
             tree: tree,
             environment: environment,
             sig:sig,
             ret_type:ret_type,
-            applied_args:applied_args,
+            applied_args:vec::Vec::new(),
             formals:formals,
         }
     }
