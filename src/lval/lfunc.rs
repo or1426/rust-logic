@@ -3,11 +3,13 @@ use std::vec;
 use lval::ltype;
 use env;
 
+use std::option;
 pub struct BuiltinFn{
     f: fn(&lval::LVal, &mut env::Env) -> lval::LVal,
     sig: vec::Vec<ltype::LType>,
     ret_type: ltype::LType,
     environment: env::Env,
+    applied_args: vec::Vec<lval::LVal>,
 }
 
 impl Clone for BuiltinFn{
@@ -17,6 +19,7 @@ impl Clone for BuiltinFn{
             sig: self.sig.clone(),
             ret_type: self.ret_type.clone(),
             environment:self.environment.clone(),
+            applied_args:self.applied_args.clone(),
         }
     }
 }
@@ -28,6 +31,7 @@ impl BuiltinFn{
             sig:sig,
             ret_type:ret_type,
             environment:environment.clone(),
+            applied_args:vec::Vec::new(),
         }
     }
     pub fn get_sig(&self)->vec::Vec<ltype::LType>{
@@ -49,10 +53,29 @@ impl BuiltinFn{
             },
             _ => lval::LVal::Error("eval arg must be list".to_string()),
         }
-
-
     }
 
+    fn get_top_arg_type(&self) -> option::Option<ltype::LType> {
+        match self.sig.last() {
+            None => None,
+            Some(t) => Some((*t).clone()),
+        }
+    }
+
+    pub fn apply_arg(&self, arg: lval::LVal) -> lval::LVal {
+        match self.get_top_arg_type(){
+            Some(required_type) =>
+                if required_type == arg.get_type(){
+                    let mut new_func = self.clone();
+                    new_func.sig.pop();
+                    new_func.applied_args.push(arg);
+                    lval::LVal::Func(LFunc::Builtin(new_func))
+                }else{
+                    lval::LVal::Error(format!("TypeError! Expected {} found {} in applied arg", required_type.to_string(), arg.get_type().to_string()))
+                },
+            None => lval::LVal::Error("Tried to apply arg to fuction with no required args".to_string()),
+        }
+    }
 }
 
 pub enum LFunc{
@@ -84,6 +107,13 @@ impl LFunc{
             &LFunc::Builtin(ref b) => b.get_ret_type(),
         }
     }
+    pub fn apply_arg(&self, arg: lval::LVal) -> lval::LVal{
+        match self {
+            &LFunc::Builtin(ref b) => b.apply_arg(arg),
+        }
+    }
+
+    
 }
 
 pub fn def_fn(value: &lval::LVal, environment: &mut env::Env) -> lval::LVal {
