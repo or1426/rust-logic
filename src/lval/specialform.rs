@@ -41,12 +41,22 @@ pub fn placeholder_fn(tree: ast::Ast, environment: &env::Env) -> lval::LVal {
                 _ => lval::LVal::Error("placeholders first parameter must be a simple token".to_string()),
             }
         }else{
-            lval::LVal::Error("placeholder must be part of a list with three elements".to_string())
+            lval::LVal::Error("placeholder must be part of a list with two elements".to_string())
         },
         _ => lval::LVal::Error("placeholder must be called in a list".to_string()),
     }
 }
-
+/*
+pub fn lambda_fn(tree: ast::Ast, environment: &env::Env) -> lval::LVal {
+    match tree {
+        ast::Ast::SubList(v) => if v.len() == 3 {
+            
+        } else {
+            lval::LVal::Error("lambda must be part of a list with three elements".to_string())
+        }
+    }
+}
+*/
 
 /*
 pub fn def_func(tree: ast::Ast, environment: &mut env::Env) -> lval::LVal {

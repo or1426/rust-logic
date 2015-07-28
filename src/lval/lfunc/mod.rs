@@ -5,6 +5,7 @@ use std::vec;
 use lval::ltype;
 use env;
 
+use std::boxed;
 use std::option;
 
 pub enum LFunc{
@@ -53,7 +54,6 @@ impl LFunc{
 }
 
 pub fn def_fn(value: &lval::LVal, environment: &mut env::Env) -> lval::LVal {
-
     match environment.pop_frame(){
         None => lval::LVal::Error("Environment should contain some stack frames when using def".to_string()),
         Some(frame) =>
@@ -78,3 +78,26 @@ pub fn def_fn(value: &lval::LVal, environment: &mut env::Env) -> lval::LVal {
         },
     }
 }
+
+
+pub fn func_type_fn(value: &lval::LVal, environment: &mut env::Env) -> lval::LVal {
+    match value {
+        &lval::LVal::List(ref v) => match (v[0].clone(), v[1].clone()) {
+            (lval::LVal::Array(a), lval::LVal::Type(t)) => if a.t == ltype::LType::Type {
+                let mut type_vec : vec::Vec<ltype::LType> = vec::Vec::new();
+                for element in a.v.iter(){
+                    match element {
+                        &lval::LVal::Type(ref t) => type_vec.push(t.clone()),
+                        _ => (),
+                    }
+                }
+                lval::LVal::Type(ltype::LType::Func((type_vec, boxed::Box::new(t.clone()))))
+            } else {
+                lval::LVal::Error("first parameter of func_def must be an array of types".to_string())
+            },
+            _ => lval::LVal::Error("func_def must be called on an array and a type".to_string()),
+        },
+        _ => lval::LVal::Error("func_def must be called on a list".to_string()),
+    }
+}
+

@@ -13,7 +13,7 @@ impl Clone for Ast{
         match self {
             &Ast::Token(ref s) => Ast::Token(s.clone()),
             &Ast::SubList(ref v) => Ast::SubList(v.clone()),
-            &Ast::SubArray(ref v) => Ast::SubList(v.clone()),
+            &Ast::SubArray(ref v) => Ast::SubArray(v.clone()),
         }
     }
 }
@@ -48,12 +48,18 @@ impl Ast{
     fn from_string_vec(mut v : vec::Vec<string::String>) -> result::Result<(vec::Vec<string::String>, Ast), &'static str> {
         let mut ast_vec = vec![];
 
-        loop{
+        loop {
             match v.pop() {
                 None => break,
                 Some(str) => match &str[..] {
-                    ")" => return Ok((v, Ast::SubList(ast_vec))),
-                    "]" => return Ok((v, Ast::SubArray(ast_vec))),
+                    ")" => {
+                        //println!("creating ast::sublist!");
+                        return Ok((v, Ast::SubList(ast_vec)));
+                    },
+                    "]" => {
+                        //println!("creating ast::subarray!");
+                        return Ok((v, Ast::SubArray(ast_vec)));
+                    },                        
                     "(" | "[" => {
                         match Ast::from_string_vec(v.clone()) {
                             Ok((v_ret, ast)) => {
@@ -71,8 +77,7 @@ impl Ast{
                     },
                 }   
             };
-        };
-
+        }
         Err("Seem to have insufficient closing brackets to parse ast!")
     }
 
@@ -86,6 +91,7 @@ impl Ast{
         match self {
             Ast::Token(t) => output.push_str(&t[..]),
             Ast::SubList(v) => {
+                //println!("Printing sublist");
                 output.push_str("\n");
                 for _ in 0..indent{
                     output.push_str(" ");
@@ -98,6 +104,7 @@ impl Ast{
                 output.push_str(")");
             },
             Ast::SubArray(v) => {
+                //println!("Printing subarray");
                 output.push_str("\n");
                 for _ in 0..indent{
                     output.push_str(" ");

@@ -4,7 +4,6 @@ pub mod lfunc;
 pub mod specialform;
 
 use std::vec;
-use std::result;
 use std::string;
 use std::boxed;
 
@@ -56,7 +55,7 @@ impl LVal{
                 };
                 LVal::List(lval_vec)
             },
-            ast::Ast::SubArray(v) => {
+            ast::Ast::SubArray(v) => {                
                 let mut lval_vec : vec::Vec<LVal> = vec::Vec::new();
                                 
                 for element in v.into_iter().map(|a| LVal::new(a, environment)){
@@ -77,8 +76,7 @@ impl LVal{
                     if element.get_type() != t {
                         return LVal::Error("Array can only contain one type".to_string());
                     }
-                }
-                
+                }                
                 LVal::Array(larray::LArray::new(lval_vec, t))
             },
 
@@ -92,36 +90,47 @@ impl LVal{
             }else{
                 //TODO: This is fucking disgusting
                 environment.push_empty_frame();
-                //let mut evaled_vec: vec::Vec<LVal> = v.iter().map(|value: &LVal| value.eval(environment)).collect();
+                
                 let mut rev_v = v.clone();
                 rev_v.reverse();
-                let ret_value = loop {
+                
+                let mut ret_value = LVal::List(vec!());
+                loop {
                     match rev_v.pop() {
                         Some(top_lval) => match top_lval.eval(environment){
                             LVal::Func(f) => match f.get_top_arg_type() {
-                                Some(t) => match rev_v.pop() {
-                                    None => return LVal::Func(f),
+                                Some(_) => match rev_v.pop() {
+                                    None => {
+                                        ret_value=LVal::Func(f);
+                                        break                                        
+                                    },
                                     Some(value) => {
                                         let r = f.apply_arg(value.eval(environment));
                                         rev_v.push(r)
                                     },                                        
                                 },
-                                None => return f.eval(environment),
-                            },                                
+                                None => {
+                                    ret_value=f.eval(environment);
+                                    break
+                                        
+                                },
+                            },
                             x => {
                                 rev_v.push(x);
                                 rev_v.reverse();
-                                return LVal::List(rev_v)
+                                ret_value=LVal::List(rev_v);
+                                break
                             },
                         },
                         None => {
                             rev_v.reverse();
-                            return LVal::List(rev_v);
+                            ret_value=LVal::List(rev_v);
+                            break
                         }
                     }
                 };
                 environment.pop_frame();
-                ret_value
+                return ret_value;
                 
             },
             _ => self.clone(),
@@ -129,7 +138,7 @@ impl LVal{
     }
 
     pub fn get_type(&self) -> ltype::LType{
-        match(self){
+        match self{
             &LVal::Bool(_) => ltype::LType::Bool,
             &LVal::List(_) => ltype::LType::List,
             &LVal::Array(ref a) => ltype::LType::Array(boxed::Box::new(a.t.clone())),
@@ -167,7 +176,7 @@ impl LVal{
                 s
             },
 
-            &LVal::Array(ref a) => {
+            &LVal::Array(ref a) => {                
                 let mut s = "\n".to_string();
                 for _ in 0..indent {
                     s.push_str(" ");
