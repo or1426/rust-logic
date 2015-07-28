@@ -57,8 +57,8 @@ pub fn lambda_fn(tree: ast::Ast, environment: &env::Env) -> lval::LVal {
     match tree {
         ast::Ast::SubList(v) => if v.len() == 4 {
             match (v[1].clone(), v[2].clone(), v[3].clone()) {
-                (ast::Ast::SubArray(array_vec), ast::Ast::SubList(list_vec), code) => {
-                    match lval::LVal::new(ast::Ast::SubArray(array_vec), &tmp_env).eval(&mut tmp_env){
+                (type_parameter, ast::Ast::SubList(list_vec), code) => {
+                    match lval::LVal::new(type_parameter, &tmp_env).eval(&mut tmp_env){
                         lval::LVal::Type(ltype::LType::Func((v,ret_type_box))) => {
                             let mut formals: vec::Vec<string::String> = vec::Vec::new();
                             for sub_ast in list_vec.iter() {
@@ -69,10 +69,10 @@ pub fn lambda_fn(tree: ast::Ast, environment: &env::Env) -> lval::LVal {
                             }
                             lval::LVal::Func(lfunc::LFunc::LFn(lfunc::lfn::LFn::new(code, environment.clone(), v.clone(), *ret_type_box, formals)))
                         },
-                        _ => lval::LVal::Error("lambda parameter first parameter must be an array of types".to_string()),
+                        _ => lval::LVal::Error("lambda parameter first parameter must be a function type".to_string()),
                     }                    
                 },
-                _ => lval::LVal::Error("lambda parameters must be an array and two lists".to_string()),
+                _ => lval::LVal::Error("lambda parameters must be a type and two lists".to_string()),
             }
         } else {
             lval::LVal::Error("lambda must be part of a list with four elements".to_string())

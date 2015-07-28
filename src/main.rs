@@ -26,8 +26,7 @@ fn main() {
         lfunc::LFunc::Builtin(
             lfunc::builtinfn::BuiltinFn::new(
                 lfunc::func_type_fn, vec![ltype::LType::Array(boxed::Box::new(ltype::LType::Type)), ltype::LType::Type], ltype::LType::Type, &e_cpy))));
-
-    
+    environment.add_val("\\".to_string(), lval::LVal::SpecialForm(specialform::SpecialForm::new(specialform::lambda_fn, "\\".to_string())));
     loop {
         let val = linenoise::input(">>> ");
         match val {
