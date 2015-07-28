@@ -45,8 +45,8 @@ impl BuiltinFn{
 
     pub fn eval(&self, environment: &mut env::Env) -> lval::LVal {
         if self.sig.len() == 0 {
-            let mut tmp_args = self.applied_args.clone();            
-            (self.f)(&lval::LVal::List(tmp_args), environment)
+            (self.f)(&lval::LVal::List(self.applied_args.clone()), environment)
+                
         }else{
             lval::LVal::Func(lfunc::LFunc::Builtin(self.clone()))
         }

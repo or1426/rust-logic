@@ -92,30 +92,32 @@ impl LVal{
             }else{
                 //TODO: This is fucking disgusting
                 environment.push_empty_frame();
-                let mut evaled_vec: vec::Vec<LVal> = v.iter().map(|value: &LVal| value.eval(environment)).collect();
-                evaled_vec.reverse();
+                //let mut evaled_vec: vec::Vec<LVal> = v.iter().map(|value: &LVal| value.eval(environment)).collect();
+                let mut rev_v = v.clone();
+                rev_v.reverse();
                 let ret_value = loop {
-                    match evaled_vec.pop() {
-                        Some(LVal::Func(f)) => {
-                            match f.get_top_arg_type() {
-                                Some(t) => {
-                                    match evaled_vec.pop() {
-                                        None => return LVal::Func(f),
-                                        Some(value) => {
-                                            let r = f.apply_arg(value);
-                                            evaled_vec.push(r)
-                                        },                                            
-                                    }
-                                }
+                    match rev_v.pop() {
+                        Some(top_lval) => match top_lval.eval(environment){
+                            LVal::Func(f) => match f.get_top_arg_type() {
+                                Some(t) => match rev_v.pop() {
+                                    None => return LVal::Func(f),
+                                    Some(value) => {
+                                        let r = f.apply_arg(value.eval(environment));
+                                        rev_v.push(r)
+                                    },                                        
+                                },
                                 None => return f.eval(environment),
-                            }
+                            },                                
+                            x => {
+                                rev_v.push(x);
+                                rev_v.reverse();
+                                return LVal::List(rev_v)
+                            },
                         },
-                        Some(x) => {
-                            evaled_vec.push(x);
-                            evaled_vec.reverse();
-                            return LVal::List(evaled_vec)
-                        },
-                        None => return LVal::List(evaled_vec)
+                        None => {
+                            rev_v.reverse();
+                            return LVal::List(rev_v);
+                        }
                     }
                 };
                 environment.pop_frame();
