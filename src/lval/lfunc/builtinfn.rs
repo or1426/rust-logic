@@ -51,7 +51,8 @@ impl BuiltinFn{
             lval::LVal::Func(lfunc::LFunc::Builtin(self.clone()))
         }
     }
-
+    
+        
     pub fn get_top_arg_type(&self) -> option::Option<ltype::LType> {
         match self.sig.first() {
             None => None,

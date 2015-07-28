@@ -1,4 +1,5 @@
 pub mod builtinfn;
+pub mod lfn;
 
 use lval;
 use std::vec;
@@ -10,12 +11,14 @@ use std::option;
 
 pub enum LFunc{
     Builtin(builtinfn::BuiltinFn),
+    LFn(lfn::LFn),
 }
 
 impl Clone for LFunc{
     fn clone(&self) -> LFunc {
         match self{
             &LFunc::Builtin(ref f) => LFunc::Builtin(f.clone()),
+            &LFunc::LFn(ref f) => LFunc::LFn(f.clone()),
         }
     }
 }
@@ -24,29 +27,34 @@ impl LFunc{
     pub fn eval(&self, environment: &mut env::Env) -> lval::LVal{
         match self {
             &LFunc::Builtin(ref b) => b.eval(environment),
+            &LFunc::LFn(ref f) => f.eval(environment),
         }
     }
 
     pub fn get_sig(&self)->vec::Vec<ltype::LType>{
         match self {
             &LFunc::Builtin(ref b) => b.get_sig(),
+            &LFunc::LFn(ref f) => f.get_sig(),
         }
     }
     pub fn get_ret_type(&self)->ltype::LType{
         match self {
             &LFunc::Builtin(ref b) => b.get_ret_type(),
+            &LFunc::LFn(ref f) => f.get_ret_type(),
         }
     }
 
     pub fn get_top_arg_type(&self) -> option::Option<ltype::LType> {
         match self {
             &LFunc::Builtin(ref b) => b.get_top_arg_type(),
+            &LFunc::LFn(ref f) => f.get_top_arg_type(),
         }
     }
     
     pub fn apply_arg(&self, arg: lval::LVal) -> lval::LVal{
         match self {
             &LFunc::Builtin(ref b) => b.apply_arg(arg),
+            &LFunc::LFn(ref f) => f.apply_arg(arg),
         }
     }
 

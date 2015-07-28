@@ -46,7 +46,7 @@ pub fn placeholder_fn(tree: ast::Ast, environment: &env::Env) -> lval::LVal {
         _ => lval::LVal::Error("placeholder must be called in a list".to_string()),
     }
 }
-
+/*
 pub fn lambda_fn(tree: ast::Ast, environment: &env::Env) -> lval::LVal {
     match tree {
         ast::Ast::SubList(v) => if v.len() == 3 {
@@ -61,7 +61,7 @@ pub fn lambda_fn(tree: ast::Ast, environment: &env::Env) -> lval::LVal {
         }
     }
 }
-
+*/
 
 /*
 pub fn def_func(tree: ast::Ast, environment: &mut env::Env) -> lval::LVal {
