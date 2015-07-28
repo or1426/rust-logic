@@ -46,17 +46,22 @@ pub fn placeholder_fn(tree: ast::Ast, environment: &env::Env) -> lval::LVal {
         _ => lval::LVal::Error("placeholder must be called in a list".to_string()),
     }
 }
-/*
+
 pub fn lambda_fn(tree: ast::Ast, environment: &env::Env) -> lval::LVal {
     match tree {
         ast::Ast::SubList(v) => if v.len() == 3 {
-            
+            match (v[1].clone(), v[2].clone()) {
+                (ast::Ast::SubArray(array_vec), ast::Ast::SubList(list_vec)) => {
+                    
+                },
+                _ => lval::LVal::Error("lambda parameters must be an array and a list".to_string()),
+            }
         } else {
             lval::LVal::Error("lambda must be part of a list with three elements".to_string())
         }
     }
 }
-*/
+
 
 /*
 pub fn def_func(tree: ast::Ast, environment: &mut env::Env) -> lval::LVal {
