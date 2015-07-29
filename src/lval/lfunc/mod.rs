@@ -69,7 +69,7 @@ pub fn def_fn(value: &lval::LVal, environment: &mut env::Env) -> lval::LVal {
             let return_value = match value {
                 &lval::LVal::List(ref v) => if v.len() == 2 {
                     match (v[0].clone(), v[1].clone()) {
-                        (lval::LVal::PlaceHolder(s), value) => {
+                        (lval::LVal::PlaceH(\ (:: [bool_t] bool_t) (x) (not x))older(s), value) => {
                             environment.add_val(s.clone(), value.clone());
                             value
                         },
