@@ -56,10 +56,10 @@ impl LFn{
             for (formal, applied_arg) in self.formals.iter().zip(self.applied_args.iter()){
                 environment.add_val(formal.clone(), applied_arg.clone());
             }
-            let ret = lval::LVal::new(self.tree.clone(), environment);
+            let ret = lval::LVal::new(self.tree.clone(), environment).eval(environment);
             environment.pop_frame();
             ret
-        }else{
+        }else{            
             lval::LVal::Func(lfunc::LFunc::LFn(self.clone()))
         }
     }

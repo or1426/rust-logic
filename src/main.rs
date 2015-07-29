@@ -15,13 +15,16 @@ fn main() {
 
     environment.add_val("1".to_string(), lval::LVal::Bool(true));
     environment.add_val("0".to_string(), lval::LVal::Bool(false));
-    environment.add_val("t_bool".to_string(), lval::LVal::Type(ltype::LType::Bool));
+    environment.add_val("bool_t".to_string(), lval::LVal::Type(ltype::LType::Bool));
     //environment.add_val("t_bool".to_string(), lval::LVal::Type(ltype::LType::Bool));
 
     environment.add_val("p".to_string(), lval::LVal::SpecialForm(specialform::SpecialForm::new(specialform::placeholder_fn, "p".to_string())));
     let e_cpy = environment.clone();
     environment.add_val("def".to_string(), lval::LVal::Func(lfunc::LFunc::Builtin(lfunc::builtinfn::BuiltinFn::new(lfunc::def_fn, vec![ltype::LType::PlaceHolder, ltype::LType::Unknown], ltype::LType::Unknown, &e_cpy))));
 
+    environment.add_val("not".to_string(), lval::LVal::Func(lfunc::LFunc::Builtin(lfunc::builtinfn::BuiltinFn::new(lfunc::not_fn, vec![ltype::LType::Bool], ltype::LType::Bool, &e_cpy))));
+
+    
     environment.add_val("::".to_string(), lval::LVal::Func(
         lfunc::LFunc::Builtin(
             lfunc::builtinfn::BuiltinFn::new(

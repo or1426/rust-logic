@@ -81,16 +81,16 @@ impl Ast{
         Err("Seem to have insufficient closing brackets to parse ast!")
     }
 
-    pub fn to_string(self: Ast) -> string::String {
+    pub fn to_string(&self) -> string::String {
         self.to_string_with_indent(0)
     }
 
-    fn to_string_with_indent(self: Ast, indent: i32) -> string::String {
+    fn to_string_with_indent(&self, indent: i32) -> string::String {
         let mut output = "".to_string();
         
         match self {
-            Ast::Token(t) => output.push_str(&t[..]),
-            Ast::SubList(v) => {
+            &Ast::Token(ref t) => output.push_str(&t[..]),
+            &Ast::SubList(ref v) => {
                 //println!("Printing sublist");
                 output.push_str("\n");
                 for _ in 0..indent{
@@ -103,7 +103,7 @@ impl Ast{
                 output.pop(); //don't want the ugly extra whitespace
                 output.push_str(")");
             },
-            Ast::SubArray(v) => {
+            &Ast::SubArray(ref v) => {
                 //println!("Printing subarray");
                 output.push_str("\n");
                 for _ in 0..indent{

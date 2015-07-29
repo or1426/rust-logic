@@ -51,7 +51,6 @@ pub fn placeholder_fn(tree: ast::Ast, environment: &env::Env) -> lval::LVal {
         _ => lval::LVal::Error("placeholder must be called in a list".to_string()),
     }
 }
-
 pub fn lambda_fn(tree: ast::Ast, environment: &env::Env) -> lval::LVal {
     let mut tmp_env = environment.clone();
     match tree {
@@ -81,22 +80,4 @@ pub fn lambda_fn(tree: ast::Ast, environment: &env::Env) -> lval::LVal {
     }
 }
 
-/*
-pub fn def_func(tree: ast::Ast, environment: &mut env::Env) -> lval::LVal {
-    match tree {
-        ast::Ast::SubList(v) => if v.len() == 3 {
-            match v[1].clone() {
-                ast::Ast::Token(token) => {
-                    let value = lval::LVal::new(v[2].clone(), environment);
-                    environment.add_val(token, value.clone());
-                    return value;                                        
-                },
-                _ => lval::LVal::Error("defs first parameter must be a simple token".to_string()),
-            }
-        }else{
-            lval::LVal::Error("def must be part of a list with three elements".to_string())
-        },
-        _ => lval::LVal::Error("def must be called in a list".to_string()),
-    }
-}
-*/
+
